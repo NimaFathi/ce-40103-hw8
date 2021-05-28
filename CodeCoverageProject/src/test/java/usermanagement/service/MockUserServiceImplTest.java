@@ -24,6 +24,8 @@ import usermanagement.entity.Person;
 import usermanagement.exception.UserNotFoundException;
 import usermanagement.repository.PersonRepository;
 
+import javax.persistence.criteria.CriteriaBuilder;
+
 @RunWith(MockitoJUnitRunner.class)
 public class MockUserServiceImplTest {
 
@@ -62,6 +64,26 @@ public class MockUserServiceImplTest {
 	}
 
 	@Test
+	public void findById_old_found() {
+		doReturn(person).when(personDao).findOne(Integer.valueOf(1));
+
+		doReturn(user).when(transformer).toUserDomain(person);
+
+		User user = testClass.findById_old(Integer.valueOf(1));
+		assertEquals(ALI, user.getFirstName());
+		assertEquals(TEST_COMPANY, user.getCompanyName());
+	}
+
+	@Test(expected = UserNotFoundException.class)
+	public void findById_old_not_found_exception() {
+		doReturn(null).when(personDao).findOne( Matchers.any(Integer.class));
+
+		doReturn(user).when(transformer).toUserDomain(Matchers.any(Person.class));
+
+		User default_user = testClass.findById_old(Integer.valueOf(1));
+	}
+
+	@Test
 	public void searchByCompanyName_found() {
 		List<Person> persons = new ArrayList<>();
 		persons.add(person);
@@ -96,6 +118,8 @@ public class MockUserServiceImplTest {
 	@Before
 	public void setup() {
 		person.setfName(ALI);
+		person.setCompanyName(TEST_COMPANY);
 		user.setFirstName(ALI);
+		user.setCompanyName(TEST_COMPANY);
 	}
 }
